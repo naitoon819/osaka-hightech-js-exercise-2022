@@ -1,32 +1,45 @@
-// State 相当の値を準備 (今回の場合は配列)
+// State 相当の値を準備
 // ----------------------------------------------------------------------------
-var up;    // 空白ピース基準で 1 つ上のピースを記録
-var down;  // 空白ピース基準で 1 つ下のピースを記録
-var left;  // 空白ピース基準で 1 つ左のピースを記録
-var right; // 空白ピース基準で 1 つ右のピースを記録
+let up;    // 空白ピース基準で 1 つ上のピースの場所を記録
+let down;  // 空白ピース基準で 1 つ下のピースの場所を記録
+let left;  // 空白ピース基準で 1 つ左のピースの場所を記録
+let right; // 空白ピース基準で 1 つ右のピースの場所を記録
+let count = 0;
 
-var peaces = [
-  6,  4,  3, 10,
-  7,  1,  2,  5,
-  9, 13, 11,  8,
- 15, 14, 16, 12,
+// 各ピースの場所を記録
+let positions = [
+   6,  4,  3, 10,
+   7,  2,  1,  5,
+   9, 13, 11,  8,
+  15, 14, 12, 16,
 ];
 
+function randomizePositions(array){
+  for(var i = (array.length -1); 0 < i; i--){
+    var r = Math.floor(Math.random() * (i + 1));
+    var tmp = array[i];
+    array[i] = array[r];
+    array[r] = tmp;
+  }
+  return array;
+}
 
-// 空白ピースを基準に、上下左右のピースを調べる関数
+
+
+// 空白ピースを基準に、上下左右のピースの場所を調べる関数
 // ----------------------------------------------------------------------------
-function calcAdjacentPeaces() {
-  const empty = peaces[15];
+function calcAdjacentPositions() {
+  const empty = positions[15];
 
   let temp_up    = empty - 4;
   let temp_down  = empty + 4;
   let temp_left  = empty - 1;
   let temp_right = empty + 1;
 
-  if (temp_up   < 1  ) temp_up    = null;
-  if (temp_down > 16 ) temp_down  = null;
-  if (empty % 4 === 1) temp_left  = null;
-  if (empty % 4 === 0) temp_right = null;
+  if (temp_up   <   1 ) temp_up    = null;
+  if (temp_down >   16) temp_down  = null;
+  if (empty % 4 === 1 ) temp_left  = null;
+  if (empty % 4 === 0 ) temp_right = null;
 
   up    = temp_up;
   down  = temp_down;
@@ -39,73 +52,62 @@ function calcAdjacentPeaces() {
 // ----------------------------------------------------------------------------
 function component() {
   for (let n = 0; n < 16; n = n + 1) {
-    const piece = document.querySelector('.pos-' + (n + 1));
-  
-    piece.style.order = peaces[n];
+    const piece = document.querySelector('.piece-' + (n + 1));
+
+    piece.style.order = positions[n];
   }
+  document.getElementById('count').innerHTML = "tap : " +  count ;
 }
 
-
-// 初期化処理 (WIP: 全てのピースをランダムに配置する)
+// 初期化処理
 // ----------------------------------------------------------------------------
+randomizePositions(positions);
 component();
-calcAdjacentPeaces();
+calcAdjacentPositions();
 
+function isFinished(array){
+  for(var i = 0; (array.length -1) > i; i++){
+    if (i + 1 == array[i]){
+
+    }else{
+      return false;
+    }
+    if (array[i] == (array.length -1)){
+      window.alert("congratulations!!");
+      return true;
+    }
+  }
+  document.location.reroad();
+}
 
 // ピースがクリックされたときに実行する処理 (関数)
 // ----------------------------------------------------------------------------
 function pieceClickHandler(event) {
-  // event.target からピースの番号 N を特定する (文字になっているので数値に変換もする)
-  const N = Number(event.target.innerHTML);
+  // event.target からピースの番号 N を特定する (文字で取得されるので数値に変換する)
+  const N = Number(event.target.innerText);
 
-  if (peaces[N - 1] === up) {
-    console.log('上にいるので、移動して OK');
-
+  if (
+    positions[N - 1] === up   ||
+    positions[N - 1] === down ||
+    positions[N - 1] === left ||
+    positions[N - 1] === right
+  ) {
     // ピースの場所を入れ替える
-    const temp = peaces[15];
-    peaces[15] = peaces[N - 1];
-    peaces[N - 1] = temp;
+    [ positions[15], positions[N - 1] ] = [ positions[N - 1], positions[15] ];
 
-    component(); // State => View の反映を行う
-    calcAdjacentPeaces(); // 隣接するピースを再計算する
-  } else if (peaces[N - 1] === down) {
-    console.log('下にいるので、移動して OK');
+    // State => View の反映を行う
+    count++ ;
+    component();
 
-    // ピースの場所を入れ替える
-    const temp = peaces[15];
-    peaces[15] = peaces[N - 1];
-    peaces[N - 1] = temp;
-
-    component(); // State => View の反映を行う
-    calcAdjacentPeaces(); // 隣接するピースを再計算する
-  } else if (peaces[N - 1] === left) {
-    console.log('左にいるので、移動して OK');
-
-    // ピースの場所を入れ替える
-    const temp = peaces[15];
-    peaces[15] = peaces[N - 1];
-    peaces[N - 1] = temp;
-
-    component(); // State => View の反映を行う
-    calcAdjacentPeaces(); // 隣接するピースを再計算する
-  } else if (peaces[N - 1] === right) {
-    console.log('右にいるので、移動して OK');
-
-    // ピースの場所を入れ替える
-    const temp = peaces[15];
-    peaces[15] = peaces[N - 1];
-    peaces[N - 1] = temp;
-
-    component(); // State => View の反映を行う
-    calcAdjacentPeaces(); // 隣接するピースを再計算する
+    // 隣接するピースを再計算する
+    calcAdjacentPositions(); 
   }
 }
-
 
 // 1 ～ 15 番ピースのクリックを監視し、クリックされたら pieceClickHandler を呼ぶ
 // ----------------------------------------------------------------------------
 for (let n = 1; n <= 15; n = n + 1) {
-  const piece = document.querySelector('.pos-' + n);
+  const piece = document.querySelector('.piece-' + n);
 
   piece.addEventListener('click', pieceClickHandler);
 }
