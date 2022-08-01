@@ -74,6 +74,7 @@ function isFinished(array){
     }
     if (array[i] == (array.length -1)){
       window.alert("congratulations!!");
+      alert("congratulations!!");
       return true;
     }
   }
